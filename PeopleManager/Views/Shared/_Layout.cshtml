@@ -1,25 +1,38 @@
 ﻿<!DOCTYPE html>
-<html>
+<!-- set language to Hebrew and direction to RTL -->
+<html dir="rtl" lang="he">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - יישום ASP.NET</title>
+    <style>
+        /* Basic RTL adjustments */
+        body { direction: rtl; text-align: right; }
+        table { direction: rtl; }
+        input, textarea, select { direction: rtl; }
+        .navbar .nav-link { text-align: right; }
+    </style>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
         <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            @Html.ActionLink("ניהול אנשים", "Index", "People", new { area = "" }, new { @class = "navbar-brand" })
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="הצג/הסתר תפריט" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="הצג/הסתר תפריט">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
+                @{
+                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+                    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+                    string indexLinkClass = (currentController.Equals("People", StringComparison.OrdinalIgnoreCase) && currentAction.Equals("Index", StringComparison.OrdinalIgnoreCase)) ? "nav-link active" : "nav-link";
+                    string createLinkClass = (currentController.Equals("People", StringComparison.OrdinalIgnoreCase) && currentAction.Equals("Create", StringComparison.OrdinalIgnoreCase)) ? "nav-link active" : "nav-link";
+                }
                 <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item"><a href="@Url.Action("Index", "People")" class="@indexLinkClass">רשימת אנשים</a></li>
+                    <li class="nav-item"><a href="@Url.Action("Create", "People")" class="@createLinkClass">הוספת אדם</a></li>
                 </ul>
             </div>
         </div>
@@ -28,12 +41,12 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            <p>&copy; @DateTime.Now.Year - ניהול אנשים</p>
         </footer>
     </div>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

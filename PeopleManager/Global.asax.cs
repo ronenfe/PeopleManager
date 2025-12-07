@@ -17,5 +17,13 @@ namespace PeopleManager
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+        protected void Application_BeginRequest()
+        {
+            // Ensure responses use UTF-8 charset
+            Response.ContentEncoding = System.Text.Encoding.UTF8;
+            Response.Charset = "utf-8";
+            Response.ContentType = "text/html; charset=utf-8";
+        }
     }
 }

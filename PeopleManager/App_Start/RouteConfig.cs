@@ -16,7 +16,8 @@ namespace PeopleManager
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                // change default controller to People so your new pages load at root
+                defaults: new { controller = "People", action = "Index", id = UrlParameter.Optional }
             );
         }
     }
