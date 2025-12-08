@@ -48,24 +48,19 @@ jobs:
       run: |
         Write-Host "Running tests..."
 
-        # Locate vswhere
-        $vswhereCmd = Get-Command vswhere.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue
-        if ($vswhereCmd) { $vswhere = $vswhereCmd } else { $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' }
-        if (-not (Test-Path $vswhere)) { Write-Error "vswhere.exe not found at $vswhere"; exit 1 }
+        # Install Visual Studio Test Platform via NuGet so vstest.console.exe is available
+        $package = 'Microsoft.TestPlatform'
+        $version = '17.11.0'
+        $outDir = "$PWD\.testtools"
 
-        # Try to find vstest.console.exe via vswhere
-        $vstestPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.TestTools.Core -find **\vstest.console.exe | Select-Object -First 1
+        nuget install $package -Version $version -OutputDirectory $outDir
 
-        # Fallback: search common Visual Studio folders if vswhere didn't return a path
-        if (-not $vstestPath) {
-          $vstestPath = Get-ChildItem 'C:\Program Files (x86)\Microsoft Visual Studio' -Recurse -ErrorAction SilentlyContinue -Filter vstest.console.exe | Select-Object -ExpandProperty FullName -First 1
-        }
+        $vstest = Get-ChildItem $outDir -Recurse -Filter vstest.console.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+        if (-not $vstest) { Write-Error "vstest.console.exe not found after installing $package"; exit 1 }
 
-        if (-not $vstestPath) { Write-Error "vstest.console.exe not found on the runner"; exit 1 }
+        Write-Host "Using vstest: $vstest"
 
-        Write-Host "Using vstest: $vstestPath"
-
-        & $vstestPath 'PeopleManager.Tests\bin\Debug\PeopleManager.Tests.dll' /Logger:trx
+        & $vstest 'PeopleManager.Tests\bin\Debug\PeopleManager.Tests.dll' /Logger:trx
 
     - name: Upload test results (if any)
       if: always()
