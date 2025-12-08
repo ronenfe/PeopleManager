@@ -14,23 +14,32 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-      with:
-        vs-version: 'latest'
-
     - name: Restore NuGet packages and build with MSBuild
       shell: pwsh
       run: |
-        $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+        # Try to locate vswhere.exe via PATH, then fallback to the common installation path
+        $vswhereCmd = Get-Command vswhere.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue
+        if ($vswhereCmd) {
+          $vswhere = $vswhereCmd
+        } else {
+          $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+        }
+
         if (-not (Test-Path $vswhere)) {
           Write-Error "vswhere.exe not found at $vswhere"
           exit 1
         }
-        $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
-        if (-not $msbuild) {
+
+        $msbuildPaths = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+        if (-not $msbuildPaths) {
           Write-Error "MSBuild.exe not found on the runner"
           exit 1
         }
+
+        # If multiple paths returned pick the first
+        $msbuild = $msbuildPaths | Select-Object -First 1
+
+        Write-Host "Using MSBuild: $msbuild"
+
         nuget restore PeopleManager.sln
         & $msbuild 'PeopleManager.sln' '/p:Configuration=Debug' '/m'
