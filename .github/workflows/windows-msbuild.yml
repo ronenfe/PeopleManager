@@ -19,8 +19,18 @@ jobs:
       with:
         vs-version: 'latest'
 
-    - name: Restore NuGet packages
-      run: nuget restore PeopleManager.sln
-
-    - name: Build solution
-      run: msbuild PeopleManager.sln /p:Configuration=Debug /m
+    - name: Restore NuGet packages and build with MSBuild
+      shell: pwsh
+      run: |
+        $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe'
+        if (-not (Test-Path $vswhere)) {
+          Write-Error "vswhere.exe not found at $vswhere"
+          exit 1
+        }
+        $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+        if (-not $msbuild) {
+          Write-Error "MSBuild.exe not found on the runner"
+          exit 1
+        }
+        nuget restore PeopleManager.sln
+        & $msbuild 'PeopleManager.sln' '/p:Configuration=Debug' '/m'
