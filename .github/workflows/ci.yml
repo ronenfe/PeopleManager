@@ -23,7 +23,25 @@ jobs:
       run: nuget restore PeopleManager.sln
 
     - name: Build solution
-      run: msbuild PeopleManager.sln /p:Configuration=Debug /m
+      shell: pwsh
+      run: |
+        # Locate vswhere (from PATH or common install path) and use it to find MSBuild.exe
+        $vswhereCmd = Get-Command vswhere.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue
+        if ($vswhereCmd) { $vswhere = $vswhereCmd } else { $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' }
+
+        if (-not (Test-Path $vswhere)) {
+          Write-Error "vswhere.exe not found at $vswhere"
+          exit 1
+        }
+
+        $msbuildPath = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+        if (-not $msbuildPath) {
+          Write-Error "MSBuild.exe not found on the runner"
+          exit 1
+        }
+
+        Write-Host "Using MSBuild: $msbuildPath"
+        & $msbuildPath 'PeopleManager.sln' '/p:Configuration=Debug' '/m'
 
     - name: Run unit tests
       run: |
