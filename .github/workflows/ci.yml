@@ -60,7 +60,22 @@ jobs:
 
         Write-Host "Using vstest: $vstest"
 
-        & $vstest 'PeopleManager.Tests\bin\Debug\PeopleManager.Tests.dll' /Logger:trx
+        # Locate the test assembly produced by the build. Search the workspace for a matching DLL.
+        $testDll = Get-ChildItem -Path $PWD -Recurse -ErrorAction SilentlyContinue -Filter 'PeopleManager.Tests.dll' | Select-Object -First 1 -ExpandProperty FullName
+        if (-not $testDll) {
+          # Try broader pattern
+          $testDll = Get-ChildItem -Path $PWD -Recurse -ErrorAction SilentlyContinue -Include '*PeopleManager.Tests*.dll' -File | Select-Object -First 1 -ExpandProperty FullName
+        }
+
+        if (-not $testDll) {
+          Write-Host "Test assembly not found. Listing candidate bin folders for debugging:"
+          Get-ChildItem -Path $PWD -Recurse -ErrorAction SilentlyContinue -Directory | Where-Object { $_.FullName -like '*\bin\Debug*' } | Select-Object -First 20 | ForEach-Object { Write-Host $_.FullName }
+          Write-Error "Test assembly PeopleManager.Tests.dll not found. Ensure the test project is built and output path is correct."
+          exit 1
+        }
+
+        Write-Host "Found test assembly: $testDll"
+        & $vstest $testDll /Logger:trx
 
     - name: Upload test results (if any)
       if: always()
