@@ -44,9 +44,28 @@ jobs:
         & $msbuildPath 'PeopleManager.sln' '/p:Configuration=Debug' '/m'
 
     - name: Run unit tests
+      shell: pwsh
       run: |
-        echo Running tests...
-        vstest.console.exe "PeopleManager.Tests\bin\Debug\PeopleManager.Tests.dll"
+        Write-Host "Running tests..."
+
+        # Locate vswhere
+        $vswhereCmd = Get-Command vswhere.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue
+        if ($vswhereCmd) { $vswhere = $vswhereCmd } else { $vswhere = 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' }
+        if (-not (Test-Path $vswhere)) { Write-Error "vswhere.exe not found at $vswhere"; exit 1 }
+
+        # Try to find vstest.console.exe via vswhere
+        $vstestPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.TestTools.Core -find **\vstest.console.exe | Select-Object -First 1
+
+        # Fallback: search common Visual Studio folders if vswhere didn't return a path
+        if (-not $vstestPath) {
+          $vstestPath = Get-ChildItem 'C:\Program Files (x86)\Microsoft Visual Studio' -Recurse -ErrorAction SilentlyContinue -Filter vstest.console.exe | Select-Object -ExpandProperty FullName -First 1
+        }
+
+        if (-not $vstestPath) { Write-Error "vstest.console.exe not found on the runner"; exit 1 }
+
+        Write-Host "Using vstest: $vstestPath"
+
+        & $vstestPath 'PeopleManager.Tests\bin\Debug\PeopleManager.Tests.dll' /Logger:trx
 
     - name: Upload test results (if any)
       if: always()
