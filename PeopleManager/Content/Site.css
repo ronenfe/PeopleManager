@@ -48,6 +48,19 @@ table th.text-right, table td.text-right { text-align: right !important; }
     background-clip: padding-box;
 }
 
+/* Ensure images inside spaced table cells do not overflow and the cell border wraps them */
+.table-spacing td, .table-spacing th {
+    vertical-align: middle;
+}
+.table-spacing td img {
+    display: block;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    margin: 0 auto;
+    border-radius: 4px;
+}
+
 /* highlight active nav-link */
 .navbar .nav-link.active {
     color: #fff !important;

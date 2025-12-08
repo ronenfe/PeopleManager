@@ -20,5 +20,11 @@ namespace PeopleManager.Models
 
         [Display(Name = "קובץ תמונה")]
         public string PhotoFileName { get; set; }
+
+        // Stored image bytes (optional). When present, used for list and PDF export.
+        public byte[] PhotoData { get; set; }
+
+        // Content type of the uploaded image (e.g. image/png)
+        public string PhotoContentType { get; set; }
     }
 }

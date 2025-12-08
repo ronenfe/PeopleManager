@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Data.Entity;
+using PeopleManager.Models;
 
 namespace PeopleManager
 {
@@ -16,6 +18,8 @@ namespace PeopleManager
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            // If the model changes, drop and recreate the database (data will be lost)
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<PeopleDbContext>());
         }
 
         protected void Application_BeginRequest()
