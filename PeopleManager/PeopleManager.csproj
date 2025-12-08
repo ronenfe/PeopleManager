@@ -491,7 +491,6 @@
   </ProjectExtensions>
   <!-- Removed legacy EnsureNuGetPackageBuildImports target and packages folder imports
        Packages have been migrated to PackageReference. -->
-
   <ItemGroup>
     <PackageReference Include="Antlr" Version="3.5.0.2" />
     <PackageReference Include="Bidi" Version="0.9.0" />
@@ -506,7 +505,7 @@
     <PackageReference Include="itext7" Version="9.4.0" />
     <PackageReference Include="itext7.pdfhtml" Version="6.3.0" />
     <PackageReference Include="jQuery" Version="3.6.4" />
-    <PackageReference Include="jQuery.Validation" Version="1.17.0" />
+    <PackageReference Include="jQuery.Validation" Version="1.19.5" />
     <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.9" />
     <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.9" />
     <PackageReference Include="Microsoft.AspNet.Web.Optimization" Version="1.1.3" />
