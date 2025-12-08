@@ -278,6 +278,15 @@ ServiceFabricBackup/
 # Microsoft Fakes
 FakesAssemblies/
 
+# Ignore uploads and user images
+/Uploads/
+
+# Ignore common image files committed accidentally
+*.png
+*.jpg
+*.jpeg
+*.gif
+
 # GhostDoc plugin setting file
 *.GhostDoc.xml
 
