@@ -125,11 +125,13 @@ namespace PeopleManager.Controllers
                             var imgData = iText.IO.Image.ImageDataFactory.Create(p.PhotoData);
                             var img = new iText.Layout.Element.Image(imgData);
                             img.ScaleToFit(48, 48);
+                            // right-align the image inside the cell
+                            img.SetHorizontalAlignment(HorizontalAlignment.RIGHT);
                             var imgCell = new Cell().Add(img)
                                 .SetBorder(cellBorder)
                                 .SetPadding(4)
                                 .SetVerticalAlignment(VerticalAlignment.MIDDLE)
-                                .SetTextAlignment(TextAlignment.CENTER);
+                                .SetTextAlignment(TextAlignment.RIGHT);
                             table.AddCell(imgCell);
                         }
                         catch

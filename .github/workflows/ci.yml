@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install NuGet CLI
+      shell: powershell
+      run: |
+        choco install nuget.commandline -y
+
+    - name: Restore NuGet packages
+      run: nuget restore PeopleManager.sln
+
+    - name: Build solution
+      run: msbuild PeopleManager.sln /p:Configuration=Debug /m
+
+    - name: Run unit tests
+      run: |
+        echo Running tests...
+        vstest.console.exe "PeopleManager.Tests\bin\Debug\PeopleManager.Tests.dll"
+
+    - name: Upload test results (if any)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          PeopleManager.Tests\TestResults || true
